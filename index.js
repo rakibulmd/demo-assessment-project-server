@@ -27,10 +27,15 @@ async function run() {
         app.get("/customers", async (req, res) => {
             const page = parseInt(req.query.page);
             const pageSize = parseInt(req.query.pagesize);
-            const result = customerCollection
-                .find({})
-                .skip(page * pageSize)
-                .limit(pageSize);
+            let result;
+            if (page && pageSize) {
+                result = customerCollection
+                    .find({})
+                    .skip(page * pageSize)
+                    .limit(pageSize);
+            } else {
+                result = customerCollection.find({});
+            }
 
             const customers = await result.toArray();
             res.status(200).send(customers);
