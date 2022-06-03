@@ -23,6 +23,18 @@ async function run() {
         const customerCollection = client
             .db("assessment")
             .collection("customers");
+
+        app.get("/customers", async (req, res) => {
+            const page = parseInt(req.query.page);
+            const pageSize = parseInt(req.query.pagesize);
+            const result = customerCollection
+                .find({})
+                .skip(page * pageSize)
+                .limit(pageSize);
+
+            const customers = await result.toArray();
+            res.status(200).send(customers);
+        });
     } finally {
     }
 }
@@ -30,7 +42,7 @@ app.get("/", (req, res) => {
     res.send("hello");
 });
 app.listen(port, () => {
-    console.log("server is runnnin at port,", port);
+    console.log("server is running at port,", port);
 });
 
 run().catch(console.dir);
