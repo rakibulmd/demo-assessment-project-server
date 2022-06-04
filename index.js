@@ -18,7 +18,6 @@ const client = new MongoClient(uri, {
 async function run() {
     try {
         await client.connect();
-        console.log("db connected");
 
         const customerCollection = client
             .db("assessment")
@@ -28,7 +27,7 @@ async function run() {
             const page = parseInt(req.query.page);
             const pageSize = parseInt(req.query.pagesize);
             let result;
-            if (page && pageSize) {
+            if (page >= 0 && pageSize) {
                 result = customerCollection
                     .find({})
                     .skip(page * pageSize)
