@@ -40,6 +40,12 @@ async function run() {
             const customers = await result.toArray();
             res.status(200).send(customers);
         });
+
+        app.get("/customerCount", async (req, res) => {
+            const query = {};
+            const count = await customerCollection.countDocuments(query);
+            res.send({ count });
+        });
     } finally {
     }
 }
