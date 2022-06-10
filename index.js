@@ -24,18 +24,28 @@ async function run() {
             .collection("customers");
 
         app.get("/customers", async (req, res) => {
-            const page = parseInt(req.query.page);
-            const pageSize = parseInt(req.query.pagesize);
-            let result;
-            if (page >= 0 && pageSize) {
-                result = customerCollection
+            try {
+                const page = parseInt(req.query.page);
+                const pageSize = parseInt(req.query.pagesize);
+                const mode = req.query.mode;
+                const sort = req.query.sort;
+                const sortCriteria = {};
+                sortCriteria[sort] = mode;
+                const result = customerCollection
                     .find({})
+                    .sort(sortCriteria)
                     .skip(page * pageSize)
                     .limit(pageSize);
-            } else {
-                result = customerCollection.find({});
-            }
 
+                const customers = await result.toArray();
+                res.status(200).send(customers);
+            } catch (error) {
+                res.status(400).send({ message: "bad request" });
+            }
+        });
+
+        app.get("/allCustomers", async (req, res) => {
+            const result = customerCollection.find({});
             const customers = await result.toArray();
             res.status(200).send(customers);
         });
