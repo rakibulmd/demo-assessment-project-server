@@ -4,6 +4,7 @@ const port = process.env.PORT || 5000;
 const cors = require("cors");
 require("dotenv").config();
 const { MongoClient, ServerApiVersion, ObjectId } = require("mongodb");
+const crypto = require("crypto");
 
 app.use(cors());
 app.use(express.json());
@@ -22,6 +23,8 @@ async function run() {
         const customerCollection = client
             .db("assessment")
             .collection("customers");
+        const foodsCollection = client.db("assessment").collection("foods");
+        const ordersCollection = client.db("assessment").collection("orders");
 
         app.get("/customers", async (req, res) => {
             try {
@@ -49,6 +52,73 @@ async function run() {
             const customers = await result.toArray();
             res.status(200).send(customers);
         });
+
+        //
+        ///
+        ////
+        /////
+        //////
+        ///////
+        ////////
+        /////////
+        //////////
+        ///////////
+        ////////////
+        /////////////
+        //////////////
+
+        app.get("/foods", async (req, res) => {
+            const result = foodsCollection.find({});
+            const foods = await result.toArray();
+            res.status(200).send(foods);
+        });
+        app.post("/order", async (req, res) => {
+            const doc = req.body;
+            const result = await ordersCollection.insertOne(doc);
+            res.send(result);
+        });
+
+        app.get("/myOrders", async (req, res) => {
+            const result = ordersCollection.find({}).sort({ _id: -1 });
+            const orders = await result.toArray();
+            res.status(200).send(orders);
+        });
+
+        app.put("/myOrders/:id", async (req, res) => {
+            const orderId = req.params.id;
+            const filter = { _id: ObjectId(orderId) };
+            const options = { upsert: true };
+            const transactionId = crypto.randomBytes(20).toString("hex");
+            const updateDoc = {
+                $set: {
+                    paid: true,
+                    transactionId: transactionId,
+                    status: "processing",
+                },
+            };
+            const result = await ordersCollection.updateOne(
+                filter,
+                updateDoc,
+                options
+            );
+
+            res.send(result);
+        });
+
+        //
+        ///
+        ////
+        /////
+        //////
+        ///////
+        ////////
+        /////////
+        //////////
+        ///////////
+        ////////////
+        /////////////
+        //////////////
+        ///////////////
 
         app.get("/customerCount", async (req, res) => {
             const query = {};
